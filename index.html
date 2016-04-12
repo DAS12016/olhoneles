@@ -1,57 +1,154 @@
 <!DOCTYPE html>
-<html lang="en-us">
+<html>
   <head>
-    <meta charset="UTF-8">
-    <title>Olhoneles by DAS12016</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
-    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+
     <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
-    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-dark.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print">
+
+    <title>Desenvolvimento Avançado de Software - Grupo 1 by DAS12016</title>
   </head>
+
   <body>
-    <section class="page-header">
-      <h1 class="project-name">Olhoneles</h1>
-      <h2 class="project-tagline">Tool to monitor Brazilian legislators expenses while in the exercise of their mandates.</h2>
-      <a href="https://github.com/DAS12016/olhoneles" class="btn">View on GitHub</a>
-      <a href="https://github.com/DAS12016/olhoneles/zipball/master" class="btn">Download .zip</a>
-      <a href="https://github.com/DAS12016/olhoneles/tarball/master" class="btn">Download .tar.gz</a>
-    </section>
 
-    <section class="main-content">
-      <h3>
-<a id="welcome-to-github-pages" class="anchor" href="#welcome-to-github-pages" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Welcome to GitHub Pages.</h3>
+    <header>
+      <div class="container">
+        <h1>Desenvolvimento Avançado de Software - Grupo 1</h1>
+        <h2>Refatoração do sistema Olhoneles</h2>
 
-<p>This automatic page generator is the easiest way to create beautiful pages for all of your projects. Author your page content here <a href="https://guides.github.com/features/mastering-markdown/">using GitHub Flavored Markdown</a>, select a template crafted by a designer, and publish. After your page is generated, you can check out the new <code>gh-pages</code> branch locally. If you’re using GitHub Desktop, simply sync your repository and you’ll see the new branch.</p>
+        <section id="downloads">
+          <a href="https://github.com/DAS12016/olhoneles/zipball/master" class="btn">Download as .zip</a>
+          <a href="https://github.com/DAS12016/olhoneles/tarball/master" class="btn">Download as .tar.gz</a>
+          <a href="https://github.com/DAS12016/olhoneles" class="btn btn-github"><span class="icon"></span>View on GitHub</a>
+        </section>
+      </div>
+    </header>
 
-<h3>
-<a id="designer-templates" class="anchor" href="#designer-templates" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Designer Templates</h3>
+    <div class="container">
+      <section id="main_content">
+        <h2>
+<a id="proposta-do-projeto" class="anchor" href="#proposta-do-projeto" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Proposta do projeto</h2>
 
-<p>We’ve crafted some handsome templates for you to use. Go ahead and click 'Continue to layouts' to browse through them. You can easily go back to edit your page before publishing. After publishing your page, you can revisit the page generator and switch to another theme. Your Page content will be preserved.</p>
+<ul>
+<li>Criação de uma Stylesheet baseada na documentação oficial do Python (acessível através do link: <a href="https://www.python.org/dev/peps/pep-0008/">https://www.python.org/dev/peps/pep-0008/</a>);</li>
+<li>Aplicação da Stylesheet que levará a refatorações em termos de:
 
-<h3>
-<a id="creating-pages-manually" class="anchor" href="#creating-pages-manually" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Creating pages manually</h3>
+<ul>
+<li>nome de variáveis, atributos, classes, métodos, pacotes, módulos, exceptions, constantes, </li>
+<li>espaçamentos;</li>
+<li>linhas em branco;</li>
+<li>espaços em branco;</li>
+<li>comentários (em bloco e em linha);</li>
+<li>e demais recomendações da linguagem.
+*Encapsulamento de códigos repetitivos em funções atômicas;</li>
+</ul>
+</li>
+<li>Remover números mágicos utilizando constantes;</li>
+<li>Utilizar padrões de projeto (se identificáveis) de modo a tornar as intenções do código mais explícitas;</li>
+<li>Utilizar padrões da linguagem para melhorar a qualidade do código.</li>
+<li>Código simples com boa apresentação;</li>
+<li>Escolher nomes significativos;</li>
+<li>Decomposição em funções atômicas;</li>
+<li>Tipos descritivos;</li>
+<li>Ênfase para código importante;</li>
+<li>Agrupamento de informações relacionadas;</li>
+<li>Utilização de Cabeçalho de Arquivo;</li>
+<li>Tratamento de erros apropriado;</li>
+<li>Utilização de comentários efetivos.</li>
+</ul>
 
-<p>If you prefer to not use the automatic generator, push a branch named <code>gh-pages</code> to your repository to create a page manually. In addition to supporting regular HTML content, GitHub Pages support Jekyll, a simple, blog aware static site generator. Jekyll makes it easy to create site-wide headers and footers without having to copy them across every page. It also offers intelligent blog support and other advanced templating features.</p>
+<p>Durante o desenvolvimento deste trabalho, serão buscados sinais para refatoração, são eles:</p>
 
-<h3>
-<a id="authors-and-contributors" class="anchor" href="#authors-and-contributors" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Authors and Contributors</h3>
+<ul>
+<li>violações de princípios de boa programação;</li>
+<li>DRY (Don’t Repeat Yourself);</li>
+<li>SRP (Single Responsibility Principle);</li>
+<li>OCP (Open Closed Principle): Um código deve ser aberto para extensão e fechado para alteração. Alterações podem causar efeitos colaterais;</li>
+<li>KISS (Keep it Short and Simple);</li>
+</ul>
 
-<p>You can <a href="https://help.github.com/articles/basic-writing-and-formatting-syntax/#mentioning-users-and-teams" class="user-mention">@mention</a> a GitHub username to generate a link to their profile. The resulting <code>&lt;a&gt;</code> element will link to the contributor’s GitHub Profile. For example: In 2007, Chris Wanstrath (<a href="https://github.com/defunkt" class="user-mention">@defunkt</a>), PJ Hyett (<a href="https://github.com/pjhyett" class="user-mention">@pjhyett</a>), and Tom Preston-Werner (<a href="https://github.com/mojombo" class="user-mention">@mojombo</a>) founded GitHub.</p>
+<h2>
+<a id="cronograma" class="anchor" href="#cronograma" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Cronograma</h2>
 
-<h3>
-<a id="support-or-contact" class="anchor" href="#support-or-contact" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Support or Contact</h3>
+<table>
+<thead>
+<tr>
+<th>Sprint</th>
+<th>Data</th>
+<th>Atividade</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>29/03 a 04/04</td>
+<td>Planejar o projeto</td>
+</tr>
+<tr>
+<td>1</td>
+<td>05/04 a 11/04</td>
+<td>Preparar ambiente</td>
+</tr>
+<tr>
+<td>2</td>
+<td>12/04 a 18/04</td>
+<td>Refatoração de acordo com o PEP8</td>
+</tr>
+<tr>
+<td>#</td>
+<td>19/04</td>
+<td>Ponto de controle 2</td>
+</tr>
+<tr>
+<td>3</td>
+<td>19/04 a 25/04</td>
+<td>Decompor em funções atômicas e implementar testes unitários</td>
+</tr>
+<tr>
+<td>4</td>
+<td>26/04 a 02/05</td>
+<td></td>
+</tr>
+<tr>
+<td>5</td>
+<td>03/05 a 09/05</td>
+<td></td>
+</tr>
+<tr>
+<td>#</td>
+<td>05/05</td>
+<td>Ponto de controle 3</td>
+</tr>
+<tr>
+<td>#</td>
+<td>24/05</td>
+<td>Ponto de controle 4</td>
+</tr>
+<tr>
+<td>#</td>
+<td>14/06</td>
+<td>Ponto de controle 5</td>
+</tr>
+<tr>
+<td>6</td>
+<td>10/05 a 16/05</td>
+<td>Renomear usando nomes significativos</td>
+</tr>
+<tr>
+<td>7</td>
+<td>17/05 a 23/05</td>
+<td></td>
+</tr>
+</tbody>
+</table>
 
-<p>Having trouble with Pages? Check out our <a href="https://help.github.com/pages">documentation</a> or <a href="https://github.com/contact">contact support</a> and we’ll help you sort it out.</p>
+<h2>
+<a id="ferramentas" class="anchor" href="#ferramentas" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Ferramentas</h2>
+      </section>
+    </div>
 
-      <footer class="site-footer">
-        <span class="site-footer-owner"><a href="https://github.com/DAS12016/olhoneles">Olhoneles</a> is maintained by <a href="https://github.com/DAS12016">DAS12016</a>.</span>
-
-        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
-      </footer>
-
-    </section>
-
-  
+    
   </body>
 </html>
