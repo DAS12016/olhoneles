@@ -4,6 +4,7 @@ from south.db import db
 from south.v2 import DataMigration
 from django.db import models
 
+
 class Migration(DataMigration):
 
     def forwards(self, orm):
@@ -12,7 +13,8 @@ class Migration(DataMigration):
                                                date=datetime.date.today())
             collection_run.save()
 
-            for expense in orm.Expense.objects.filter(mandate__legislature=legislature).all():
+            for expense in orm.Expense.objects.filter(
+                    mandate__legislature=legislature).all():
                 exp = orm.ArchivedExpense(original_id=expense.original_id,
                                           number=expense.number,
                                           nature=expense.nature,
@@ -25,16 +27,19 @@ class Migration(DataMigration):
                 exp.save()
 
                 try:
-                    e = orm.Expense.objects.get(original_id=expense.original_id,
-                                                number=expense.number,
-                                                nature=expense.nature,
-                                                date=expense.date,
-                                                value=expense.value,
-                                                expensed=expense.expensed,
-                                                mandate=expense.mandate,
-                                                supplier=expense.supplier)
+                    e = orm.Expense.objects.get(
+                        original_id=expense.original_id,
+                        number=expense.number,
+                        nature=expense.nature,
+                        date=expense.date,
+                        value=expense.value,
+                        expensed=expense.expensed,
+                        mandate=expense.mandate,
+                        supplier=expense.supplier)
+
                 except Exception, e:
-                    import pdb;pdb.set_trace()
+                    import pdb
+                    import pdb.set_trace()
 
     def backwards(self, orm):
         raise RuntimeError("No can do.")
@@ -42,33 +47,52 @@ class Migration(DataMigration):
     models = {
         u'montanha.archivedexpense': {
             'Meta': {'object_name': 'ArchivedExpense'},
-            'collection_run': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['montanha.CollectionRun']"}),
+            'collection_run': ('django.db.models.fields.related.ForeignKey', [], {
+                'to': u"orm['montanha.CollectionRun']"}),
             'date': ('django.db.models.fields.DateField', [], {}),
-            'expensed': ('django.db.models.fields.DecimalField', [], {'max_digits': '10', 'decimal_places': '2'}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'mandate': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['montanha.Mandate']"}),
-            'nature': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['montanha.ExpenseNature']"}),
-            'number': ('django.db.models.fields.CharField', [], {'max_length': '512'}),
-            'original_id': ('django.db.models.fields.CharField', [], {'max_length': '512', 'null': 'True', 'blank': 'True'}),
-            'supplier': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['montanha.Supplier']"}),
-            'value': ('django.db.models.fields.DecimalField', [], {'null': 'True', 'max_digits': '10', 'decimal_places': '2', 'blank': 'True'})
+            'expensed': ('django.db.models.fields.DecimalField', [], {
+                'max_digits': '10', 'decimal_places': '2'}),
+            u'id': ('django.db.models.fields.AutoField', [], {
+                'primary_key': 'True'}),
+            'mandate': ('django.db.models.fields.related.ForeignKey', [], {
+                'to': u"orm['montanha.Mandate']"}),
+            'nature': ('django.db.models.fields.related.ForeignKey', [], {
+                'to': u"orm['montanha.ExpenseNature']"}),
+            'number': ('django.db.models.fields.CharField', [], {
+                'max_length': '512'}),
+            'original_id': ('django.db.models.fields.CharField', [], {
+                'max_length': '512', 'null': 'True', 'blank': 'True'}),
+            'supplier': ('django.db.models.fields.related.ForeignKey', [], {
+                'to': u"orm['montanha.Supplier']"}),
+            'value': ('django.db.models.fields.DecimalField', [], {
+                'null': 'True', 'max_digits': '10', 'decimal_places': '2',
+                'blank': 'True'})
         },
         u'montanha.collectionrun': {
             'Meta': {'object_name': 'CollectionRun'},
             'date': ('django.db.models.fields.DateField', [], {}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'legislature': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['montanha.Legislature']"})
+            u'id': ('django.db.models.fields.AutoField', [], {
+                'primary_key': 'True'}),
+            'legislature': ('django.db.models.fields.related.ForeignKey', [], {
+                'to': u"orm['montanha.Legislature']"})
         },
         u'montanha.expense': {
             'Meta': {'object_name': 'Expense'},
             'date': ('django.db.models.fields.DateField', [], {}),
-            'expensed': ('django.db.models.fields.DecimalField', [], {'max_digits': '10', 'decimal_places': '2'}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'mandate': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['montanha.Mandate']"}),
-            'nature': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['montanha.ExpenseNature']"}),
-            'number': ('django.db.models.fields.CharField', [], {'max_length': '512'}),
-            'original_id': ('django.db.models.fields.CharField', [], {'max_length': '512', 'null': 'True', 'blank': 'True'}),
-            'supplier': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['montanha.Supplier']"}),
+            'expensed': ('django.db.models.fields.DecimalField', [], {
+                'max_digits': '10', 'decimal_places': '2'}),
+            u'id': ('django.db.models.fields.AutoField', [], {
+                'primary_key': 'True'}),
+            'mandate': ('django.db.models.fields.related.ForeignKey', [], {
+                'to': u"orm['montanha.Mandate']"}),
+            'nature': ('django.db.models.fields.related.ForeignKey', [], {
+                'to': u"orm['montanha.ExpenseNature']"}),
+            'number': ('django.db.models.fields.CharField', [], {
+                'max_length': '512'}),
+            'original_id': ('django.db.models.fields.CharField', [], {
+                'max_length': '512', 'null': 'True', 'blank': 'True'}),
+            'supplier': ('django.db.models.fields.related.ForeignKey', [], {
+                'to': u"orm['montanha.Supplier']"}),
             'value': ('django.db.models.fields.DecimalField', [], {'null': 'True', 'max_digits': '10', 'decimal_places': '2', 'blank': 'True'})
         },
         u'montanha.expensenature': {

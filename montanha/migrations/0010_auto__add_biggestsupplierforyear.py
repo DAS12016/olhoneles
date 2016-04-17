@@ -10,38 +10,52 @@ class Migration(SchemaMigration):
     def forwards(self, orm):
         # Adding model 'BiggestSupplierForYear'
         db.create_table(u'montanha_biggestsupplierforyear', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('supplier', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['montanha.Supplier'])),
+            (u'id', self.gf('django.db.models.fields.AutoField')
+                (primary_key=True)),
+            ('supplier', self.gf('django.db.models.fields.related.ForeignKey')
+                (to=orm['montanha.Supplier'])),
             ('year', self.gf('django.db.models.fields.IntegerField')()),
-            ('expensed', self.gf('django.db.models.fields.DecimalField')(max_digits=10, decimal_places=2)),
+            ('expensed', self.gf('django.db.models.fields.DecimalField')
+                (max_digits=10, decimal_places=2)),
         ))
         db.send_create_signal(u'montanha', ['BiggestSupplierForYear'])
-
 
     def backwards(self, orm):
         # Deleting model 'BiggestSupplierForYear'
         db.delete_table(u'montanha_biggestsupplierforyear')
 
-
     models = {
         u'montanha.archivedexpense': {
             'Meta': {'object_name': 'ArchivedExpense'},
-            'collection_run': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['montanha.CollectionRun']"}),
+            'collection_run': ('django.db.models.fields.related.ForeignKey', [], {
+                'to': u"orm['montanha.CollectionRun']"}),
             'date': ('django.db.models.fields.DateField', [], {}),
-            'expensed': ('django.db.models.fields.DecimalField', [], {'max_digits': '10', 'decimal_places': '2'}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'mandate': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['montanha.Mandate']"}),
-            'nature': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['montanha.ExpenseNature']"}),
-            'number': ('django.db.models.fields.CharField', [], {'max_length': '512'}),
-            'original_id': ('django.db.models.fields.CharField', [], {'max_length': '512', 'null': 'True', 'blank': 'True'}),
-            'supplier': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['montanha.Supplier']"}),
-            'value': ('django.db.models.fields.DecimalField', [], {'null': 'True', 'max_digits': '10', 'decimal_places': '2', 'blank': 'True'})
+            'expensed': ('django.db.models.fields.DecimalField', [], {
+                'max_digits': '10', 'decimal_places': '2'}),
+            u'id': ('django.db.models.fields.AutoField', [], {
+                'primary_key': 'True'}),
+            'mandate': ('django.db.models.fields.related.ForeignKey', [], {
+                'to': u"orm['montanha.Mandate']"}),
+            'nature': ('django.db.models.fields.related.ForeignKey', [], {
+                'to': u"orm['montanha.ExpenseNature']"}),
+            'number': ('django.db.models.fields.CharField', [], {
+                'max_length': '512'}),
+            'original_id': ('django.db.models.fields.CharField', [], {
+                'max_length': '512', 'null': 'True', 'blank': 'True'}),
+            'supplier': ('django.db.models.fields.related.ForeignKey', [], {
+                'to': u"orm['montanha.Supplier']"}),
+            'value': ('django.db.models.fields.DecimalField', [], {
+                'null': 'True', 'max_digits': '10', 'decimal_places': '2',
+                'blank': 'True'})
         },
         u'montanha.biggestsupplierforyear': {
             'Meta': {'object_name': 'BiggestSupplierForYear'},
-            'expensed': ('django.db.models.fields.DecimalField', [], {'max_digits': '10', 'decimal_places': '2'}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'supplier': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['montanha.Supplier']"}),
+            'expensed': ('django.db.models.fields.DecimalField', [], {
+                'max_digits': '10', 'decimal_places': '2'}),
+            u'id': ('django.db.models.fields.AutoField', [], {
+                'primary_key': 'True'}),
+            'supplier': ('django.db.models.fields.related.ForeignKey', [], {
+                'to': u"orm['montanha.Supplier']"}),
             'year': ('django.db.models.fields.IntegerField', [], {})
         },
         u'montanha.collectionrun': {
