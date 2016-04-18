@@ -10,39 +10,45 @@ class Migration(SchemaMigration):
     def forwards(self, orm):
         # Adding field 'Supplier.date_opened'
         db.add_column(u'montanha_supplier', 'date_opened',
-                      self.gf('django.db.models.fields.DateField')(null=True, blank=True),
+                      self.gf('django.db.models.fields.DateField')
+                      (null=True, blank=True),
                       keep_default=False)
 
         # Adding field 'Supplier.trade_name'
         db.add_column(u'montanha_supplier', 'trade_name',
-                      self.gf('django.db.models.fields.CharField')(max_length=200, null=True, blank=True),
+                      self.gf('django.db.models.fields.CharField')
+                      (max_length=200, null=True, blank=True),
                       keep_default=False)
 
         # Adding field 'Supplier.address'
         db.add_column(u'montanha_supplier', 'address',
-                      self.gf('django.db.models.fields.TextField')(null=True, blank=True),
+                      self.gf('django.db.models.fields.TextField')
+                      (null=True, blank=True),
                       keep_default=False)
 
         # Adding field 'Supplier.juridical_nature'
         db.add_column(u'montanha_supplier', 'juridical_nature',
-                      self.gf('django.db.models.fields.CharField')(max_length=200, null=True, blank=True),
+                      self.gf('django.db.models.fields.CharField')
+                      (max_length=200, null=True, blank=True),
                       keep_default=False)
 
         # Adding field 'Supplier.status'
         db.add_column(u'montanha_supplier', 'status',
-                      self.gf('django.db.models.fields.NullBooleanField')(null=True, blank=True),
+                      self.gf('django.db.models.fields.NullBooleanField')
+                      (null=True, blank=True),
                       keep_default=False)
 
         # Adding field 'Supplier.main_economic_activity'
         db.add_column(u'montanha_supplier', 'main_economic_activity',
-                      self.gf('django.db.models.fields.CharField')(max_length=200, null=True, blank=True),
+                      self.gf('django.db.models.fields.CharField')
+                      (max_length=200, null=True, blank=True),
                       keep_default=False)
 
         # Adding field 'Supplier.last_change'
         db.add_column(u'montanha_supplier', 'last_change',
-                      self.gf('django.db.models.fields.DateTimeField')(auto_now=True, null=True, blank=True),
+                      self.gf('django.db.models.fields.DateTimeField')
+                      (auto_now=True, null=True, blank=True),
                       keep_default=False)
-
 
     def backwards(self, orm):
         # Deleting field 'Supplier.date_opened'
@@ -66,19 +72,22 @@ class Migration(SchemaMigration):
         # Deleting field 'Supplier.last_change'
         db.delete_column(u'montanha_supplier', 'last_change')
 
-
     models = {
         u'montanha.alternativelegislatorname': {
             'Meta': {'object_name': 'AlternativeLegislatorName'},
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '2048'})
+            u'id': ('django.db.models.fields.AutoField', [], {
+                'primary_key': 'True'}),
+            'name': ('django.db.models.fields.CharField', [], {
+                'max_length': '2048'})
         },
         u'montanha.archivedexpense': {
             'Meta': {'object_name': 'ArchivedExpense'},
-            'collection_run': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['montanha.CollectionRun']"}),
+            'collection_run': ('django.db.models.fields.related.ForeignKey', [], {
+                'to': u"orm['montanha.CollectionRun']"}),
             'date': ('django.db.models.fields.DateField', [], {}),
-            'expensed': ('django.db.models.fields.DecimalField', [], {'max_digits': '10', 'decimal_places': '2'}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'expensed': ('django.db.models.fields.DecimalField', [], {
+                'max_digits': '10', 'decimal_places': '2'}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'Tru       e'}),
             'mandate': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['montanha.Mandate']"}),
             'nature': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['montanha.ExpenseNature']"}),
             'number': ('django.db.models.fields.CharField', [], {'max_length': '512'}),
