@@ -25,21 +25,30 @@ urlpatterns = patterns(
 
     # JSON queries
     url(r'^([^/]+)?/?q/all/?$', 'query_all', name='query-all'),
-    url(r'^([^/]+)?/?q/biggest_suppliers/?$', 'query_biggest_suppliers', name='query-biggest-suppliers'),
-    url(r'^([^/]+)?/?q/supplier_all/?$', 'query_supplier_all', name='query-supplier-all'),
-    url(r'^([^/]+)?/?q/legislator_all/?$', 'query_legislator_all', name='query-legislator-all'),
+    url(r'^([^/]+)?/?q/biggest_suppliers/?$', 'query_biggest_suppliers',
+        name='query-biggest-suppliers'),
+    url(r'^([^/]+)?/?q/supplier_all/?$', 'query_supplier_all',
+        name='query-supplier-all'),
+    url(r'^([^/]+)?/?q/legislator_all/?$', 'query_legislator_all',
+        name='query-legislator-all'),
 
     url(r'^([^/]+)?/?all/?$', 'show_all', name='show-all'),
 
     url(r'^([^/]+)?/?per-nature/?$', 'show_per_nature', name='per-nature'),
-    url(r'^([^/]+)?/?per-legislator/?$', 'show_per_legislator', name='per-legislator'),
-    url(r'^([^/]+)?/?per-party/?$', 'show_per_party', name='per-party'),
-    url(r'^([^/]+)?/?per-supplier/?$', 'show_per_supplier', name='per-supplier'),
+    url(r'^([^/]+)?/?per-legislator/?$', 'show_per_legislator',
+        name='per-legislator'),
+    url(r'^([^/]+)?/?per-party/?$', 'show_per_party',
+        name='per-party'),
+    url(r'^([^/]+)?/?per-supplier/?$', 'show_per_supplier',
+        name='per-supplier'),
 
-    url(r'^detail-supplier/(\d+)/?$', 'show_supplier_overview', name='show-supplier-overview'),
+    url(r'^detail-supplier/(\d+)/?$', 'show_supplier_overview',
+        name='show-supplier-overview'),
 
-    url(r'^([^/]+)?/?detail-legislator/(\d+)/?$', 'show_legislator_detail', name='show-legislator-detail'),
-    url(r'^([^/]+)?/?detail-supplier/(\d+)/?$', 'show_supplier_detail', name='show-supplier-detail'),
+    url(r'^([^/]+)?/?detail-legislator/(\d+)/?$', 'show_legislator_detail',
+        name='show-legislator-detail'),
+    url(r'^([^/]+)?/?detail-supplier/(\d+)/?$', 'show_supplier_detail',
+        name='show-supplier-detail'),
 
     # favicon
     url(r'^favicon.ico$', page_not_found, name='page-not-found'),
@@ -49,7 +58,8 @@ urlpatterns = patterns(
                                             content_type='text/plain')),
 
     # What is expenses?
-    url(r'^o-que-e-verba-indenizatoria/?$', 'what_is_expenses', name='what-is-expenses'),
+    url(r'^o-que-e-verba-indenizatoria/?$', 'what_is_expenses',
+        name='what-is-expenses'),
 
     # Contact us
     url(r'^fale-conosco/?$', 'contact_us', name='contact-us'),

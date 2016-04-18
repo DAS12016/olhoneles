@@ -39,7 +39,9 @@ locale.setlocale(locale.LC_TIME, "pt_BR.UTF-8")
 def generate_colors(n=7, sat=1.0, val=1.0):
     '''Generates an array of n colors from red to violet, considering
     saturation sat and value val'''
-    return ['#%02X%02X%02X' % t for t in [tuple([int(round(c * 255)) for c in t]) for t in [hsv_to_rgb(x/float(n), sat, val) for x in xrange(0, n)]]]
+    return ['#%02X%02X%02X' % t for t in [
+            tuple([int(round(c * 255)) for c in t]) for t in [
+                hsv_to_rgb(x/float(n), sat, val) for x in xrange(0, n)]]]
 
 
 def new_render(request, filter_spec, template, context):
@@ -88,7 +90,8 @@ def parse_filter(filter_spec):
         return institution, None
 
     try:
-        legislature = institution.legislature_set.get(date_start__year=parts[1])
+        legislature = institution.legislature_set.get(
+            date_start__year=parts[1])
     except ValueError:
         raise Http404
 
@@ -103,9 +106,11 @@ def show_index(request, filter_spec):
         institution, _ = parse_filter(filter_spec)
         if not institution:
             raise Http404
-        legislatures = institution.legislature_set.order_by('-date_start').all()
+        legislatures = institution.legislature_set.order_by(
+            '-date_start').all()
         c['legislatures'] = [l for l in legislatures
-                             if Expense.objects.filter(mandate__legislature=l).count()]
+                             if Expense.objects.filter(
+                                 mandate__legislature=l).count()]
         c['img'] = institution.siglum.lower() + '.png'
         return new_render(request, filter_spec, 'institution.html', c)
 
@@ -129,9 +134,11 @@ def error_404(request):
 def show_per_nature(request, filter_spec):
 
     institution, legislature = parse_filter(filter_spec)
-    data = PerNature.objects.filter(institution=institution, legislature=legislature)
+    data = PerNature.objects.filter(institution=institution,
+                                    legislature=legislature)
 
-    date_ranges = get_date_ranges_from_data(institution, data, consolidated_data=True)
+    date_ranges = get_date_ranges_from_data(institution, data,
+                                            consolidated_data=True)
 
     time_series = []
     for d in data:
@@ -139,14 +146,17 @@ def show_per_nature(request, filter_spec):
         cummulative = .0
         time_series.append(dict(label=d.nature.name, data=l))
 
-        per_year_data = PerNatureByYear.objects.filter(institution=institution).filter(nature=d.nature)
+        per_year_data = PerNatureByYear.objects.filter(
+            institution=institution).filter(nature=d.nature)
         per_year_data = per_year_data.filter(year__gte=date_ranges['cdf'].year)
         per_year_data = per_year_data.filter(year__lte=date_ranges['cdt'].year)
         for item in per_year_data:
             cummulative = cummulative + float(item.expensed)
-            l.append([int(date(item.year, 1, 1).strftime("%s000")), cummulative])
+            l.append([int(date(item.year, 1, 1).strftime(
+                "%s000")), cummulative])
 
-    # mbm_years = list of years (3, right now - 2011, 2012, 2013) with 12 months inside
+    # mbm_years = list of years (3, right now - 2011, 2012, 2013)
+    # with 12 months inside
     # each month in turn carries a dict with month name and value or null.
     def nature_is_empty(years):
         for year in years:
@@ -158,7 +168,8 @@ def show_per_nature(request, filter_spec):
     natures_mbm = []
     for nature in ExpenseNature.objects.all():
         mbm_years = []
-        expensed_by_month = PerNatureByMonth.objects.filter(institution=institution)
+        expensed_by_month = PerNatureByMonth.objects.filter(
+            institution=institution)
         expensed_by_month = expensed_by_month.filter(nature=nature)
 
         all_years = [d.year for d in expensed_by_month.dates('date', 'year')]
@@ -193,12 +204,16 @@ def show_per_nature(request, filter_spec):
 def show_per_legislator(request, filter_spec):
 
     institution, legislature = parse_filter(filter_spec)
-    data = PerLegislator.objects.filter(institution=institution, legislature=legislature).order_by('-expensed')
+    data = PerLegislator.objects.filter(institution=institution,
+                                        legislature=legislature).order_by('-expensed')
 
-    date_ranges = get_date_ranges_from_data(institution, data, consolidated_data=True)
+    date_ranges = get_date_ranges_from_data(institution, data,
+                                            consolidated_data=True)
 
-    # We may have several mandates for a legislator, potentially with different parties.
-    # We only want to show one line per legislator, though, so sum the expenses and list
+    # We may have several mandates for a legislator,
+    # potentially with different parties.
+    # We only want to show one line per legislator, though,
+    # so sum the expenses and list
     # all parties in the party column.
     data_list = []
     for item in data:
@@ -226,7 +241,8 @@ def show_legislator_detail(request, filter_spec, legislator_id):
     top_suppliers = data.values('supplier__id',
                                 'supplier__identifier',
                                 'supplier__name')
-    top_suppliers = top_suppliers.annotate(expensed=Sum('expensed')).order_by('-expensed')
+    top_suppliers = top_suppliers.annotate(
+        expensed=Sum('expensed')).order_by('-expensed')
     top_suppliers = top_suppliers[:15]
 
     total_expensed = data.values('supplier__name')
@@ -236,8 +252,9 @@ def show_legislator_detail(request, filter_spec, legislator_id):
     else:
         total_expensed = 0
 
-    data = data.values('nature__name', 'supplier__name', 'supplier__identifier',
-                       'number', 'date', 'expensed').order_by('-date')
+    data = data.values('nature__name', 'supplier__name',
+                       'supplier__identifier', 'number', 'date',
+                       'expensed').order_by('-date')
 
     paginator = Paginator(data, 10)
     page = request.GET.get('page')
@@ -248,7 +265,8 @@ def show_legislator_detail(request, filter_spec, legislator_id):
     except EmptyPage:
         data = paginator.page(paginator.num_pages)
 
-    c = {'legislator': legislator, 'data': data, 'top_suppliers': top_suppliers}
+    c = {'legislator': legislator, 'data': data,
+         'top_suppliers': top_suppliers}
 
     c.update(date_ranges)
 
@@ -262,10 +280,12 @@ def postprocess_party_data(institution, data):
 
     for d in list(data):
         if d['mandate__party__siglum']:
-            party = PoliticalParty.objects.get(siglum=d['mandate__party__siglum'])
+            party = PoliticalParty.objects.get(siglum=d[
+                'mandate__party__siglum'])
             mandates = party.mandate_set.all()
             if institution:
-                mandates = mandates.filter(legislature__institution=institution)
+                mandates = mandates.filter(
+                    legislature__institution=institution)
             d['n_legislators'] = mandates.values('legislator').count()
             d['expensed_average'] = d['expensed'] / d['n_legislators']
         else:
@@ -273,7 +293,8 @@ def postprocess_party_data(institution, data):
             d['mandate__party__name'] = 'Desconhecido'
             mandates = Mandate.objects.filter(party__siglum=None)
             if institution:
-                mandates = mandates.filter(legislature__institution=institution)
+                mandates = mandates.filter(
+                    legislature__institution=institution)
             d['n_legislators'] = mandates.values('legislator').count()
             if d['n_legislators']:
                 d['expensed_average'] = d['expensed'] / d['n_legislators']
@@ -288,12 +309,14 @@ def show_per_party(request, filter_spec):
     institution, _ = parse_filter(filter_spec)
     data, date_ranges = get_basic_objects_for_model(filter_spec)
 
-    data = data.values('mandate__party__logo', 'mandate__party__siglum', 'mandate__party__name')
+    data = data.values('mandate__party__logo', 'mandate__party__siglum',
+                       'mandate__party__name')
     data = data.annotate(expensed=Sum('expensed'))
 
     data = postprocess_party_data(institution, data)
 
-    c = {'data': data, 'graph_data': data, 'colors': generate_colors(len(data), 0.93, 0.8)}
+    c = {'data': data, 'graph_data': data, 'colors':
+         generate_colors(len(data), 0.93, 0.8)}
 
     c.update(date_ranges)
 
@@ -315,7 +338,8 @@ def show_per_supplier(request, filter_spec):
 
     data, date_ranges = get_basic_objects_for_model(filter_spec)
 
-    data = data.values('supplier__id', 'supplier__name', 'supplier__identifier')
+    data = data.values('supplier__id', 'supplier__name',
+                       'supplier__identifier')
     data = data.annotate(expensed=Sum('expensed'))
 
     data = add_sorting(request, data)
@@ -344,7 +368,8 @@ def get_supplier_detail_data(request, supplier_id, filter_spec=''):
     data = data.filter(supplier=supplier)
 
     # Data prepared for displaying the per-party graph
-    graph_data = data.values('mandate__party__logo', 'mandate__party__siglum', 'mandate__party__name')
+    graph_data = data.values('mandate__party__logo', 'mandate__party__siglum',
+                             'mandate__party__name')
     graph_data = graph_data.annotate(expensed=Sum('expensed'))
     graph_data = postprocess_party_data(institution, graph_data)
 
@@ -352,7 +377,8 @@ def get_supplier_detail_data(request, supplier_id, filter_spec=''):
                              'mandate__legislator__name',
                              'mandate__legislature__institution__siglum',
                              'mandate__party__siglum')
-    top_buyers = top_buyers.annotate(expensed=Sum('expensed')).order_by('-expensed')
+    top_buyers = top_buyers.annotate(
+        expensed=Sum('expensed')).order_by('-expensed')
     top_buyers = top_buyers[:15]
 
     total_expensed = data.values('supplier__name')
@@ -437,7 +463,8 @@ def convert_data_to_list(data, columns):
             value = deep_getattr(item, field)
 
             if field_type == 'm':
-                value = locale.currency(value, grouping=True).replace(" ", "&nbsp;")
+                value = locale.currency(value, grouping=True).replace(
+                    " ", "&nbsp;")
 
             if isinstance(value, date):
                 value = value.strftime('%d/%m/%Y')
@@ -447,7 +474,8 @@ def convert_data_to_list(data, columns):
     return data_list
 
 
-def data_tables_query(request, filter_spec, columns, filter_function=None, model=Expense):
+def data_tables_query(request, filter_spec, columns, filter_function=None,
+                      model=Expense):
 
     data, date_ranges = get_basic_objects_for_model(filter_spec, model)
 
@@ -469,7 +497,8 @@ def data_tables_query(request, filter_spec, columns, filter_function=None, model
 
         def format_for_column_type(col_type, search_string):
             if col_type == 'm':
-                search_string = search_string.replace('.', '').replace(',', '.')
+                search_string = search_string.replace('.', '').replace(
+                    ',', '.')
                 search_string = search_string.replace('R$', '')
                 return search_string.strip()
             return search_string
@@ -479,8 +508,10 @@ def data_tables_query(request, filter_spec, columns, filter_function=None, model
             if col_type == 'd':
                 continue
 
-            actual_search_string = format_for_column_type(col_type, search_string)
-            exp = Q(**{name.replace('.', '__') + '__icontains': actual_search_string})
+            actual_search_string = format_for_column_type(
+                col_type, search_string)
+            exp = Q(**{name.replace('.', '__') +
+                       '__icontains': actual_search_string})
             if filter_expression:
                 filter_expression |= exp
             else:
@@ -539,7 +570,8 @@ def query_all(request, filter_spec):
 
 def query_biggest_suppliers(request, filter_spec):
     def filter_function(data):
-        # Empty-named supplier appears to be used for expenses done through the house?
+        # Empty-named supplier appears to be used
+        # for expenses done through the house?
         data = data.filter(year=date.today().year)
         return data.exclude(supplier__name='').order_by('-expensed')
 
@@ -549,7 +581,8 @@ def query_biggest_suppliers(request, filter_spec):
         ('expensed', 'm'),
     )
 
-    return data_tables_query(request, filter_spec, columns, filter_function, BiggestSupplierForYear)
+    return data_tables_query(request, filter_spec, columns, filter_function,
+                             BiggestSupplierForYear)
 
 
 def query_supplier_all(request, filter_spec):

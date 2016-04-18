@@ -94,7 +94,7 @@ STATICFILES_DIRS = (
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-#    'django.contrib.staticfiles.finders.DefaultStorageFinder',
+    # 'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
 
 # Make this unique, and don't share it with anybody.
@@ -104,7 +104,7 @@ SECRET_KEY = conf.get('SECRET_KEY', 'REPLACE-THIS-IN-CONFIG-LOCAL')
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
     'django.template.loaders.app_directories.Loader',
-#     'django.template.loaders.eggs.Loader',
+    # 'django.template.loaders.eggs.Loader',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -123,7 +123,8 @@ ROOT_URLCONF = 'olhoneles.urls'
 WSGI_APPLICATION = 'olhoneles.wsgi.application'
 
 TEMPLATE_DIRS = (
-    # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
+    # Put strings here, like "/home/html/django_templates"
+    # or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
 )
@@ -221,7 +222,8 @@ DEFAULT_CACHES = {
 
 CACHES = conf.get('CACHES', DEFAULT_CACHES)
 
-DEFAULT_FROM_EMAIL = conf.get('DEFAULT_FROM_EMAIL', 'montanha-dev@listas.olhoneles.org')
+DEFAULT_FROM_EMAIL = conf.get(
+    'DEFAULT_FROM_EMAIL', 'montanha-dev@listas.olhoneles.org')
 
 CONTACT_US_EMAIL = conf.get('CONTACT_US_EMAIL', 'montanha@olhoneles.org')
 

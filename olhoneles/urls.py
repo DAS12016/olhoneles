@@ -24,7 +24,8 @@ from django.contrib import admin
 admin.autodiscover()
 
 urlpatterns = patterns('',
-    #Admin
+
+    # Admin
     url(r'^admin', include(admin.site.urls)),
 
     # Montanha

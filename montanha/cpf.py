@@ -3,13 +3,13 @@
 
 
 class Cpf:
-    def __init__( self ):
+    def __init__(self):
         """
         Class to interact with CPF numbers
         """
         pass
 
-    def format( self, cpf ):
+    def format(self, cpf):
         """
         Method that formats a brazilian CPF
 
@@ -17,9 +17,9 @@ class Cpf:
         >>> print Cpf().format('91289037736')
         912.890.377-36
         """
-        return "%s.%s.%s-%s" % ( cpf[0:3], cpf[3:6], cpf[6:9], cpf[9:11] )
+        return "%s.%s.%s-%s" % (cpf[0:3], cpf[3:6], cpf[6:9], cpf[9:11])
 
-    def validate( self, cpf ):
+    def validate(self, cpf):
         """
         Method to validate a brazilian CPF number
         Based on Pedro Werneck source avaiable at
@@ -37,31 +37,30 @@ class Cpf:
 
         if not cpf.isdigit():
             """ Verifica se o CPF contem pontos e hifens """
-            cpf = cpf.replace( ".", "" )
-            cpf = cpf.replace( "-", "" )
+            cpf = cpf.replace(".", "")
+            cpf = cpf.replace("-", "")
 
-        if len( cpf ) < 11:
+        if len(cpf) < 11:
             """ Verifica se o CPF tem 11 digitos """
             return False
 
-        if len( cpf ) > 11:
+        if len(cpf) > 11:
             """ CPF tem que ter 11 digitos """
             return False
 
-        selfcpf = [int( x ) for x in cpf]
+        selfcpf = [int(x) for x in cpf]
 
         cpf = selfcpf[:9]
 
-        while len( cpf ) < 11:
+        while len(cpf) < 11:
 
-            r =  sum( [( len( cpf )+1-i )*v for i, v in [( x, cpf[x] ) for x in range( len( cpf ) )]] ) % 11
+            r = sum([(len(cpf)+1-i)*v for i, v in [(x, cpf[x]) for x in
+                    range(len(cpf))]]) % 11
 
             if r > 1:
                 f = 11 - r
             else:
                 f = 0
-            cpf.append( f )
+            cpf.append(f)
 
-
-        return bool( cpf == selfcpf )
-
+        return bool(cpf == selfcpf)

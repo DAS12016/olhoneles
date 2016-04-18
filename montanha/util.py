@@ -31,7 +31,8 @@ def filter_for_institution(data, institution):
     return data
 
 
-def get_date_ranges_from_data(institution, data, consolidated_data=False, include_date_objects=True):
+def get_date_ranges_from_data(institution, data, consolidated_data=False,
+                              include_date_objects=True):
     """ Takes a data set and returns a dict containing in textual form:
 
         current_date_from: the start date that is being used for this query

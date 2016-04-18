@@ -151,16 +151,19 @@ class Legislature(models.Model):
                                    verbose_name=_("Original ID"))
 
     date_start = models.DateField(verbose_name=_("Date started"),
-                                  help_text=_("""Date in which this legislature started."""))
+                                  help_text=_("""Date in which this
+                                   legislature started."""))
 
     date_end = models.DateField(blank=True, null=True,
                                 verbose_name=_("Date ended"),
-                                help_text=_("""Date in which this legislature ended."""))
+                                help_text=_("""Date in which this
+                                 legislature ended."""))
 
     def __unicode__(self):
-        return u"%s's legislature starting at %s, ending at %s" % (self.institution.siglum,
-                                                                   str(self.date_start),
-                                                                   str(self.date_end))
+        return u"%s's legislature starting at %s, ending at %s" % (
+            self.institution.siglum,
+            str(self.date_start),
+            str(self.date_end))
 
 
 class Mandate(models.Model):
@@ -176,18 +179,25 @@ class Mandate(models.Model):
     legislature = models.ForeignKey("Legislature")
 
     date_start = models.DateField(verbose_name=_("Date started"),
-                                  help_text=_("""Date in which this mandate started; may also be """
-                                              """a resumption of a mandate that was paused for taking """
-                                              """an executive-branch office, or a party change."""))
+                                  help_text=_(
+                                  """Date in which this mandate """
+                                  """ started; may also be a resumption of """
+                                  """a mandate that was paused for taking """
+                                  """an executive-branch office, or a party"""
+                                  """ change."""))
 
     date_end = models.DateField(blank=True, null=True,
                                 verbose_name=_("Date ended"),
-                                help_text=_("""Date in which this mandate ended, paused for taking an """
-                                            """executive-branch office, or affiliation change."""))
+                                help_text=_(
+                                    """Date in which this mandate """
+                                    """ended, paused for taking an """
+                                    """executive-branch office, or """
+                                    """affiliation change."""))
 
     party = models.ForeignKey("PoliticalParty",
                               verbose_name=_("Party"),
-                              help_text=_("""Party the legislator was affiliated to during this """
+                              help_text=_("""Party the legislator was """
+                                          """affiliated to during this """
                                           """mandate."""),
                               blank=True,
                               null=True)
@@ -195,18 +205,23 @@ class Mandate(models.Model):
     state = models.CharField(blank=True, null=True,
                              max_length=512,
                              verbose_name=_("State"),
-                             help_text=_("""The state where the legislator comes from."""))
+                             help_text=_("""The state where the legislator """
+                                         """comes from."""))
 
     def __unicode__(self):
         if self.date_end:
-            return u"%s's ongoing mandate started on %s, affiliated with %s" % (self.legislator.name,
-                                                                                str(self.date_start),
-                                                                                self.party)
+            return u"%s's ongoing mandate started on %s, affiliated with %s"
+            % (self.legislator.name,
+                str(self.date_start),
+                self.party)
 
-        return u"%s's mandate started on %s ended on %s, affiliated with %s" % (self.legislator.name,
-                                                                                str(self.date_start),
-                                                                                str(self.date_end),
-                                                                                self.party)
+        return u"%s's mandate started on %s ended on %s, affiliated with %s" %
+        (
+            self.legislator.name,
+            str(self.date_start),
+            str(self.date_end),
+            self.party
+        )
 
 
 class ExpenseNature(models.Model):
@@ -237,7 +252,8 @@ class CollectionRun(models.Model):
     committed = models.BooleanField(default=False)
 
     def __unicode__(self):
-        return u"Collection run on %s for %s" % (self.date, unicode(self.legislature))
+        return u"Collection run on %s for %s" % (self.date, unicode(
+            self.legislature))
 
 
 class AbstractExpense(models.Model):
