@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (©) 2014, Marcelo Jorge Vieira <metal@alucinados.com>
+# Copyright (©) 2016, Beatriz Ferreira <beatriz.216@hotmail.com>
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU Affero General Public License as
@@ -15,20 +15,15 @@
 #  You should have received a copy of the GNU Affero General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from StringIO import StringIO
 
-from django.core.management import call_command
+from basecollector import BaseCollector
 from django.test import TestCase
 
+class BaseCollectorTestCase(TestCase):
+    def test_normalize_party_name(self):
+        collector = BaseCollector([], True)
+        self.assertEquals(collector._normalize_party_name('PCdoB'), 'PC do B')
 
-class CollectCommandsTestCase(TestCase):
-
-    def test_command_collect_without_instituiton(self):
-        out = StringIO()
-        call_command('collect', stdout=out)
-        self.assertEqual(out.getvalue(), '')
-
-    def test_command_collect_with_inexistent_instituiton(self):
-        out = StringIO()
-        call_command('collect', 'any', stdout=out)
-        self.assertEqual(out.getvalue(), '')
+    def test_normalize_party_name_out_of_list(self):
+        collector = BaseCollector([], True)
+        self.assertEquals(collector._normalize_party_name('PMDB'), 'PMDB')
