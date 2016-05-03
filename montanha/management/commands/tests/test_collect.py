@@ -27,3 +27,10 @@ class CollectCommandsTestCase(TestCase):
         out = StringIO()
         call_command('collect', stdout=out)
         self.assertEqual(out.getvalue(), '')
+
+'''    def test_command_collect_with_instituiton():
+        out = StringIO()
+        call_command('collect algo', stdout=out)
+        print "%s" % (out.getvalue())
+        self.assertEqual(out.getvalue(), 'algo')
+'''

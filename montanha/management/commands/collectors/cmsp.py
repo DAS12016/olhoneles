@@ -292,20 +292,22 @@ class CMSP(BaseCollector):
             row = line.split('#')
             if len(row) > 1:
                 name = row[1]
-                nickname = row[2]
+                nickname = ''
+                if len(row) > 2:
+                    nickname = row[2]
 
                 if nickname:
                     legislator = self.add_legislator(nickname)
                 else:
                     legislator = self.add_legislator(name)
 
-                aa = re.search('\^\p([^\^|%]*)(\^|%)', row[7])
-                if aa:
-                    party_siglum = aa.group(1)
-                else:
-                    pass
-
                 try:
+                    aa = re.search('\^\p([^\^|%]*)(\^|%)', row[7])
+                    if aa:
+                        party_siglum = aa.group(1)
+                    else:
+                        pass
+
                     date_start_re = re.search('\^\i([^\^|%]*)(\^|%)', row[7])
                     start_year = int(date_start_re.group(1).split('/')[2])
                     date_start = datetime(start_year, 1, 1)

@@ -210,13 +210,11 @@ class Mandate(models.Model):
 
     def __unicode__(self):
         if self.date_end:
-            return u"%s's ongoing mandate started on %s, affiliated with %s"
-            % (self.legislator.name,
+            return u"%s's ongoing mandate started on %s, affiliated with %s" % (self.legislator.name,
                 str(self.date_start),
                 self.party)
 
-        return u"%s's mandate started on %s ended on %s, affiliated with %s" %
-        (
+        return u"%s's mandate started on %s ended on %s, affiliated with %s" % (
             self.legislator.name,
             str(self.date_start),
             str(self.date_end),

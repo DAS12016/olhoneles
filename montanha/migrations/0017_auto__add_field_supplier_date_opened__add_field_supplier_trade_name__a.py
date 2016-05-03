@@ -87,7 +87,7 @@ class Migration(SchemaMigration):
             'date': ('django.db.models.fields.DateField', [], {}),
             'expensed': ('django.db.models.fields.DecimalField', [], {
                 'max_digits': '10', 'decimal_places': '2'}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'Tru       e'}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'mandate': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['montanha.Mandate']"}),
             'nature': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['montanha.ExpenseNature']"}),
             'number': ('django.db.models.fields.CharField', [], {'max_length': '512'}),

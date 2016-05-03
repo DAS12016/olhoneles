@@ -38,8 +38,7 @@ class Migration(DataMigration):
                         supplier=expense.supplier)
 
                 except Exception, e:
-                    import pdb
-                    import pdb.set_trace()
+                    import pdb; pdb.set_trace()
 
     def backwards(self, orm):
         raise RuntimeError("No can do.")

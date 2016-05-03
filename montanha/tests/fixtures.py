@@ -21,7 +21,9 @@ from montanha.models import Institution
 
 
 class InstitutionFactory(factory.DjangoModelFactory):
-    FACTORY_FOR = Institution
+    class Meta:
+        model = Institution
+        abstract = False
 
     name = factory.Sequence(lambda t: 'name-{0}'.format(t))
     siglum = factory.Sequence(lambda t: 'siglum-{0}'.format(t))
