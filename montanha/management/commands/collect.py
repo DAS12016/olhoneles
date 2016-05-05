@@ -15,20 +15,16 @@
 #  You should have received a copy of the GNU Affero General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import signal
-import sys
-
 # This hack makes django less memory hungry (it caches queries when running
 # with debug enabled.
-from django.conf import settings
-settings.DEBUG = False
 
 from django.core.management import call_command
 from django.core.management.base import BaseCommand
 from django.db import connection, transaction
 from montanha.models import Expense
+from django.conf import settings
 
-
+settings.DEBUG = False
 debug_enabled = False
 
 
@@ -98,10 +94,14 @@ class Command(BaseCommand):
             legislature = run.legislature
             Expense.objects.filter(mandate__legislature=legislature).delete()
 
-            columns = "number, nature_id, date, value, expensed, mandate_id, supplier_id"
+            col = "number,nature_id,date,value,expensed,mandate_id,supplier_id"
 
             cursor = connection.cursor()
-            cursor.execute("insert into montanha_expense (%s) select %s from montanha_archivedexpense where collection_run_id=%d" % (columns, columns, run.id))
+            insertI = "insert into montanha_expense"
+            fromI = " from montanha_archivedexpense where collection_run_id="
+            cursor.execute(
+                str(insertI) + " (%s) select %s " + str(fromI) + "%d"
+                % (col, col, run.id))
             cursor.close()
 
             transaction.commit_unless_managed()

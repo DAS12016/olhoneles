@@ -19,10 +19,11 @@
 
 import json
 import re
-import datetime
 from basecollector import BaseCollector
 from datetime import datetime
-from montanha.models import *
+from montanha.models import Institution, Legislator, Legislature
+from montanha.models import PoliticalParty, ExpenseNature, Supplier
+from montanha.models import ArchivedExpense
 
 
 class ALMG(BaseCollector):
@@ -32,12 +33,14 @@ class ALMG(BaseCollector):
         try:
             institution = Institution.objects.get(siglum='ALMG')
         except Institution.DoesNotExist:
-            institution = Institution(siglum='ALMG', name=u'Assembléia Legislativa do Estado de Minas Gerais')
+            institution = Institution(
+                siglum='ALMG',
+                name=u'Assembléia Legislativa do Estado de Minas Gerais')
             institution.save()
 
-        self.legislature, _ = Legislature.objects.get_or_create(institution=institution,
-                                                                date_start=datetime(2015, 1, 1),
-                                                                date_end=datetime(2018, 12, 31))
+        self.legislature, _ = Legislature.objects.get_or_create(
+            institution=institution, date_start=datetime(2015, 1, 1),
+            date_end=datetime(2018, 12, 31))
 
     def post_process_uri(self, contents):
         # The JSON returned by ALMG's web service uses the brazilian
@@ -56,7 +59,9 @@ class ALMG(BaseCollector):
 
     def update_legislators(self):
         for situation in ['em_exercicio', 'que_exerceram_mandato']:
-            legislators = self.retrieve_uri("http://dadosabertos.almg.gov.br/ws/deputados/%s?formato=json" % situation)["list"]
+            legislators = self.retrieve_uri(
+                "http://dadosabertos.almg.gov.br/ws/deputados/%s?formato=json" % (
+                    situation))["list"]
             for entry in legislators:
                 try:
                     party = PoliticalParty.objects.get(siglum=entry["partido"])
@@ -66,23 +71,28 @@ class ALMG(BaseCollector):
 
                     self.debug("New party: %s" % unicode(party))
 
-                legislator, created = self.try_name_disambiguation(entry['nome'])
+                legislator, created = self.try_name_disambiguation(
+                    entry['nome'])
                 if not legislator:
-                    legislator, created = Legislator.objects.get_or_create(name=entry['nome'])
+                    legislator, created = Legislator.objects.get_or_create(
+                        name=entry['nome'])
 
                 if created:
                     self.debug("New legislator: %s" % unicode(legislator))
                 else:
-                    self.debug("Found existing legislator: %s" % unicode(legislator))
+                    self.debug(
+                        "Found existing legislator: %s" % unicode(legislator))
 
-                mandate = self.mandate_for_legislator(legislator, party, original_id=entry["id"])
+                # mandate = self.mandate_for_legislator(
+                    # legislator, party, original_id=entry["id"])
 
     def update_legislators_data(self):
 
         mandates = self.legislature.mandate_set.all()
         for mandate in mandates:
             original_id = mandate.original_id
-            uri = "http://dadosabertos.almg.gov.br/ws/deputados/%s?formato=json" % original_id
+            uri = "http://dadosabertos.almg.gov.br/ws/deputados/%s?formato=json" % (
+                original_id)
             entry = self.retrieve_uri(uri)["deputado"]
 
             self.debug("Legislator %s" % unicode(mandate.legislator))
@@ -118,13 +128,18 @@ class ALMG(BaseCollector):
             self.update_data_for_month(mandate, year, month)
 
     def update_data_for_month(self, mandate, year, month):
-        self.debug("Updating data for %d-%d - %s" % (year, month, unicode(mandate)))
-        uri = "http://dadosabertos.almg.gov.br/ws/prestacao_contas/verbas_indenizatorias/deputados/%s/%d/%d?formato=json" % (mandate.original_id, year, month)
+        self.debug(
+            "Updating data for %d-%d - %s" % (year, month, unicode(mandate)))
+        uri = "http://dadosabertos.almg.gov.br/ws/prestacao_contas/verbas_indenizatorias/deputados/%s/%d/%d?formato=json" % (
+            mandate.original_id, year, month)
         for entry in self.retrieve_uri(uri)["list"]:
             try:
-                nature = ExpenseNature.objects.get(original_id=entry["codTipoDespesa"])
+                nature = ExpenseNature.objects.get(
+                    original_id=entry["codTipoDespesa"])
             except ExpenseNature.DoesNotExist:
-                nature = ExpenseNature(original_id=entry["codTipoDespesa"], name=entry["descTipoDespesa"])
+                nature = ExpenseNature(
+                    original_id=entry[
+                        "codTipoDespesa"], name=entry["descTipoDespesa"])
                 nature.save()
 
             for details in entry["listaDetalheVerba"]:
@@ -132,7 +147,8 @@ class ALMG(BaseCollector):
                 try:
                     supplier = Supplier.objects.get(identifier=cnpj)
                 except Supplier.DoesNotExist:
-                    supplier = Supplier(identifier=cnpj, name=details["nomeEmitente"])
+                    supplier = Supplier(
+                        identifier=cnpj, name=details["nomeEmitente"])
                     supplier.save()
 
                 if "descDocumento" in details:

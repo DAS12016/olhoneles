@@ -26,8 +26,9 @@ from cStringIO import StringIO
 from basecollector import BaseCollector
 from django.core.files import File
 from datetime import datetime
-
-from montanha.models import *
+from montanha.models import Institution, Legislature, PoliticalParty, Mandate
+from montanha.models import Legislator, ExpenseNature, ArchivedExpense
+from montanha.models import Supplier
 
 
 class ALGO(BaseCollector):
@@ -41,11 +42,14 @@ class ALGO(BaseCollector):
         try:
             institution = Institution.objects.get(siglum='ALGO')
         except Institution.DoesNotExist:
-            institution = Institution(siglum='ALGO', name=u'Assembléia Legislativa do Estado de Goiás')
+            institution = Institution(
+                siglum='ALGO',
+                name=u'Assembléia Legislativa do Estado de Goiás')
             institution.save()
 
         try:
-            self.legislature = Legislature.objects.all().filter(institution=institution).order_by('-date_start')[0]
+            self.legislature = Legislature.objects.all().filter(
+                institution=institution).order_by('-date_start')[0]
         except IndexError:
             self.legislature = Legislature(institution=institution,
                                            date_start=datetime(2011, 1, 1),
@@ -84,7 +88,8 @@ class ALGO(BaseCollector):
             entry['email'] = tds[4].find('img').get('title')
 
             if entry['email']:
-                entry['email'] = email_regex.match(entry['email']).group(1).strip()
+                entry['email'] = email_regex.match(
+                    entry['email']).group(1).strip()
 
             party_siglum = self._normalize_party_siglum(entry["party"])
             party, party_created = PoliticalParty.objects.get_or_create(
@@ -93,7 +98,8 @@ class ALGO(BaseCollector):
 
             self.debug("New party: %s" % unicode(party))
 
-            legislator, created = Legislator.objects.get_or_create(name=entry['nome'])
+            legislator, created = Legislator.objects.get_or_create(
+                name=entry['nome'])
 
             legislator.site = self.base_url + entry['url']
             legislator.email = entry['email']
@@ -102,9 +108,11 @@ class ALGO(BaseCollector):
             if created:
                 self.debug("New legislator: %s" % unicode(legislator))
             else:
-                self.debug("Found existing legislator: %s" % unicode(legislator))
+                self.debug("Found existing legislator: %s" % unicode(
+                    legislator))
 
-            mandate = self.mandate_for_legislator(legislator, party, original_id=entry["id"])
+            # mandate = self.mandate_for_legislator(
+                # legislator, party, original_id=entry["id"])
 
     def update_data_for_year(self, mandate, year):
         self.debug("Updating data for year %d" % year)
@@ -128,12 +136,16 @@ class ALGO(BaseCollector):
         match = self.MONEY_RE.search(value)
 
         if match:
-            return float('%s.%s' % (match.group(1).replace('.', '').replace(',', ''), match.group(2)))
+            return float(
+                '%s.%s' % (
+                    match.group(1).replace(
+                        '.', '').replace(',', ''), match.group(2)))
         else:
             raise ValueError('Cannot convert %s to float (money)' % value)
 
     def find_data_for_month(self, mandate, year, month):
-        url = '%s/transparencia/verbaindenizatoria/exibir?ano=%d&mes=%d&parlamentar_id=%s' % (
+        part = '/transparencia/verbaindenizatoria/exibir?ano='
+        url = '%s' + str(part) + '%d&mes=%d&parlamentar_id=%s' % (
             self.base_url, year, month, mandate.original_id)
         data = self.retrieve_uri(url, force_encoding='utf8')
 
@@ -180,7 +192,8 @@ class ALGO(BaseCollector):
                         }
 
                         data['nome'] = tds[0].text
-                        data['cpf_cnpj'] = self.normalize_cnpj_or_cpf(tds[1].text)
+                        data['cpf_cnpj'] = self.normalize_cnpj_or_cpf(
+                            tds[1].text)
                         data['date'] = tds[2].text
                         data['number'] = tds[3].text
                         data['value_presented'] = self.parse_money(tds[4].text)
@@ -198,7 +211,8 @@ class ALGO(BaseCollector):
                     budget_subtitle = self.parse_title(tds[0].text)
 
                     next_tr = tr.findNext('tr')
-                    break_classes = ('subtotal', 'info-detalhe-verba', 'verba_titulo')
+                    break_classes = (
+                        'subtotal', 'info-detalhe-verba', 'verba_titulo')
 
                     if next_tr.get('class') in break_classes:
                         continue
@@ -236,7 +250,8 @@ class ALGO(BaseCollector):
 
     def update_data_for_month(self, mandate, year, month):
         for data in self.find_data_for_month(mandate, year, month):
-            nature = self.get_or_create_expense_nature(data['budget_title'] + ': ' + data['budget_subtitle'])
+            nature = self.get_or_create_expense_nature(
+                data['budget_title'] + ': ' + data['budget_subtitle'])
 
             name = data.get('nome') or 'Sem nome'
             cpf_cnpj = data.get('cpf_cnpj') or 'Sem CPF/CNPJ (%s)' % name
@@ -261,20 +276,24 @@ class ALGO(BaseCollector):
             expense.save()
 
     def update_images(self):
-        mandates = Mandate.objects.filter(legislature=self.legislature, legislator__picture='')
+        mandates = Mandate.objects.filter(
+            legislature=self.legislature, legislator__picture='')
 
         headers = {
             'Referer': self.base_url + '/deputado/',
             'Origin': self.base_url,
         }
-        deputado_data = self.retrieve_uri(self.base_url + '/deputado/', headers=headers)
+        deputado_data = self.retrieve_uri(
+            self.base_url + '/deputado/', headers=headers)
 
         for mandate in mandates:
             leg = mandate.legislator
             found_text = deputado_data.find(text=re.compile(leg.name))
 
             if not found_text:
-                self.debug('Legislator not found in page: %s' % mandate.legislator.name)
+                self.debug(
+                    'Legislator not found in page: %s' % (
+                        mandate.legislator.name))
                 continue
 
             tr = found_text.findParents('tr')[0]
@@ -284,9 +303,12 @@ class ALGO(BaseCollector):
             detail_url = self.base_url + detail_path
             detail_data = self.retrieve_uri(detail_url, headers=headers)
 
-            photo_container = detail_data.find('div', {'class': re.compile(r'foto')})
+            photo_container = detail_data.find(
+                'div', {'class': re.compile(r'foto')})
             photo_url = photo_container.find('img')['src']
-            photo_data = self.retrieve_uri(self.base_url + photo_url, post_process=False, return_content=True)
+            photo_data = self.retrieve_uri(
+                self.base_url+photo_url,
+                post_process=False, return_content=True)
 
             photo_buffer = StringIO(photo_data)
             photo_buffer.seek(0)

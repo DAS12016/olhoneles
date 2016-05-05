@@ -20,9 +20,10 @@ import re
 import urllib
 from datetime import datetime
 from django.core.files import File
-
 from basecollector import BaseCollector
-from montanha.models import *
+from montanha.models import Institution, Legislator, Mandate
+from montanha.models import PoliticalParty, ExpenseNature, Supplier
+from montanha.models import ArchivedExpense, Legislature
 
 
 def parse_money(string):
@@ -111,7 +112,8 @@ class CMSP(BaseCollector):
                 result = urllib.urlretrieve(legislator_img_url)
 
                 legislator.picture.save(
-                    os.path.basename(legislator_img_url), File(open(result[0])))
+                    os.path.basename(
+                        legislator_img_url), File(open(result[0])))
 
                 legislator.save()
 
@@ -137,7 +139,8 @@ class CMSP(BaseCollector):
 
             party_name = party_name.parent.parent.find('font', size='2')
             party_name = party_name.getText()
-            party_siglum = party_name[party_name.find('(')+1:party_name.find(')')]
+            party_siglum = party_name[party_name.find(
+                '(')+1:party_name.find(')')]
 
             if 'Vereadores Licenciados' not in party_siglum:
                 party_siglum = self._normalize_party_siglum(party_siglum)
@@ -202,7 +205,8 @@ class CMSP(BaseCollector):
                 for j in i.findAll('g_beneficiario'):
                     supplier_name = j.find('nm_beneficiario').getText()
                     supplier_name = supplier_name.capitalize()
-                    cnpj = self.normalize_cnpj_or_cpf(j.find('nr_cnpj').getText())
+                    cnpj = self.normalize_cnpj_or_cpf(
+                        j.find('nr_cnpj').getText())
 
                     if not cnpj and not supplier_name:
                         continue
@@ -211,7 +215,8 @@ class CMSP(BaseCollector):
                         supplier = Supplier.objects.get(identifier=cnpj)
                         supplier_created = False
                     except Supplier.DoesNotExist:
-                        supplier = Supplier(identifier=cnpj, name=supplier_name)
+                        supplier = Supplier(
+                            identifier=cnpj, name=supplier_name)
                         supplier.save()
                         supplier_created = True
 
@@ -309,6 +314,7 @@ class CMSP(BaseCollector):
                     date_start_re = re.search('\^\i([^\^|%]*)(\^|%)', row[7])
                     start_year = int(date_start_re.group(1).split('/')[2])
                     date_start = datetime(start_year, 1, 1)
+                    date_start = date_start
                 except IndexError:
                     continue
 

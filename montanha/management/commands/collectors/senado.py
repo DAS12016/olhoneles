@@ -23,8 +23,9 @@ from datetime import datetime
 from StringIO import StringIO
 from django.db import reset_queries
 from basecollector import BaseCollector
-from montanha.models import (ArchivedExpense, Institution, Legislature,
-                             Legislator, Mandate, ExpenseNature, Supplier, PoliticalParty)
+from montanha.models import ArchivedExpense, Institution, Legislature
+from montanha.models import Legislator, Mandate, ExpenseNature
+from montanha.models import Supplier, PoliticalParty
 
 OBJECT_LIST_MAXIMUM_COUNTER = 1000
 
@@ -33,10 +34,11 @@ class Senado(BaseCollector):
     def __init__(self, collection_runs, debug_enabled=False):
         super(Senado, self).__init__(collection_runs, debug_enabled)
 
-        institution, _ = Institution.objects.get_or_create(siglum='Senado', name=u'Senado Federal')
-        self.legislature, _ = Legislature.objects.get_or_create(institution=institution,
-                                                                date_start=datetime(2015, 1, 1),
-                                                                date_end=datetime(2018, 12, 31))
+        institution, _ = Institution.objects.get_or_create(
+            siglum='Senado', name=u'Senado Federal')
+        self.legislature, _ = Legislature.objects.get_or_create(
+            institution=institution, date_start=datetime(2015, 1, 1),
+            date_end=datetime(2018, 12, 31))
 
     def retrieve_legislators(self):
         uri = 'http://www25.senado.leg.br/web/transparencia/sen/'
@@ -47,7 +49,8 @@ class Senado(BaseCollector):
 
         self.debug("Downloading %s" % uri)
 
-        return BaseCollector.retrieve_uri(self, uri, force_encoding='windows-1252', post_process=False)
+        return BaseCollector.retrieve_uri(
+            self, uri, force_encoding='windows-1252', post_process=False)
 
     def try_name_disambiguation(self, name):
         if name.title() == 'Luiz Henrique':
@@ -70,27 +73,34 @@ class Senado(BaseCollector):
 
         # Add legislators that do not exist yet
         for l in legislators:
-            mandate = Mandate.objects.filter(legislature=self.legislature).filter(original_id=l['original_id'])
+            mandate = Mandate.objects.filter(
+                legislature=self.legislature).filter(
+                    original_id=l['original_id'])
             if mandate.count():
                 assert(mandate.count() == 1)
                 mandate = mandate[0]
                 legislator = mandate.legislator
-                self.debug("Found existing legislator: %s" % unicode(legislator))
+                self.debug(
+                    "Found existing legislator: %s" % unicode(legislator))
             else:
                 legislator, created = self.try_name_disambiguation(l['name'])
                 if not legislator:
-                    legislator, created = Legislator.objects.get_or_create(name=l['name'])
+                    legislator, created = Legislator.objects.get_or_create(
+                        name=l['name'])
 
                 if created:
                     self.debug("New legislator: %s" % unicode(legislator))
                 else:
-                    self.debug("Found existing legislator: %s" % unicode(legislator))
+                    self.debug(
+                        "Found existing legislator: %s" % unicode(legislator))
 
-                mandate = self.mandate_for_legislator(legislator, party=None, original_id=l['original_id'])
+                mandate = self.mandate_for_legislator(
+                    legislator, party=None, original_id=l['original_id'])
 
     def update_data(self):
         self.collection_run = self.create_collection_run(self.legislature)
-        for year in range(self.legislature.date_start.year, datetime.now().year + 1):
+        for year in range(self.legislature.date_start.year,
+                          datetime.now().year + 1):
             self.update_data_for_year(year)
 
     def update_data_for_year(self, year=datetime.now().year):
@@ -98,7 +108,8 @@ class Senado(BaseCollector):
 
         csv_data = self.retrieve_data_for_year(year).replace('\r\n', '\n')
 
-        # FIXME: data containing quote-like characters (like ¨) break pandas parsing as well
+        # FIXME: data containing quote-like characters (like ¨)
+        # break pandas parsing as well
         csv_data = csv_data.replace(u'¨', '')
 
         csv_data = re.sub(r'([^;\n])""+([^;\n])', r'\1"\2', csv_data)
@@ -125,7 +136,8 @@ class Senado(BaseCollector):
             actual_header = df.columns.values.tolist()
 
             if actual_header != expected_header:
-                print u'Bad CSV: expected header %s, got %s' % (expected_header, actual_header)
+                print u'Bad CSV: expected header %s, got %s' % (
+                    expected_header, actual_header)
                 return
 
             archived_expense_list = []
@@ -143,14 +155,16 @@ class Senado(BaseCollector):
 
                 # FIXME: WTF?
                 if isinstance(expensed, unicode):
-                    expensed = float(expensed.replace(',', '.').replace('\r\n', ''))
+                    expensed = float(
+                        expensed.replace(',', '.').replace('\r\n', ''))
 
                 nature, _ = ExpenseNature.objects.get_or_create(name=nature)
 
                 try:
                     supplier = Supplier.objects.get(identifier=cpf_cnpj)
                 except Supplier.DoesNotExist:
-                    supplier = Supplier(identifier=cpf_cnpj, name=supplier_name)
+                    supplier = Supplier(
+                        identifier=cpf_cnpj, name=supplier_name)
                     supplier.save()
 
                 legislator, _ = self.try_name_disambiguation(name)
@@ -218,11 +232,14 @@ class Senado(BaseCollector):
 
                 mandate = legislator.mandate_set.order_by("-date_start")[0]
                 if mandate.legislature != self.legislature:
-                    print 'Legislature found for %s is not the same as the one we need, ignoring.' % legislator.name
+                    p = ' is not the same as the one we need, '
+                    print 'Legislature found for %s' + str(p) + 'ignoring.' % (
+                        legislator.name)
                     continue
 
                 party = self._normalize_party_name(columns[1].getText())
-                mandate.party, _ = PoliticalParty.objects.get_or_create(siglum=party)
+                mandate.party, _ = PoliticalParty.objects.get_or_create(
+                    siglum=party)
                 mandate.save()
 
                 href = columns[6].findChild().get('href')
@@ -235,9 +252,9 @@ class Senado(BaseCollector):
 
                 legislator.save()
 
-                self.debug('Updated data for %s: %s, %s, %s' % (legislator.name,
-                                                                mandate.party.name,
-                                                                legislator.email,
-                                                                legislator.site))
+                self.debug('Updated data for %s: %s, %s, %s' % (
+                    legislator.name, mandate.party.name, legislator.email,
+                    legislator.site))
             else:
-                self.debug('Legislator found on site but not on database: %s' % name)
+                self.debug(
+                    'Legislator found but not on database: %s' % name)

@@ -46,14 +46,20 @@ class BaseCollector(object):
         timestamp = datetime.fromtimestamp(time.time()).strftime('%F:%H:%M:%S')
         self.logfile.write('%s %s\n' % (timestamp, message))
 
-    def mandate_for_legislator(self, legislator, party, state=None, original_id=None):
+    def mandate_for_legislator(self, legislator,
+                               party, state=None, original_id=None):
         try:
-            mandate = Mandate.objects.get(legislator=legislator, date_start=self.legislature.date_start)
+            mandate = Mandate.objects.get(
+                legislator=legislator, date_start=self.legislature.date_start)
         except Mandate.DoesNotExist:
-            mandate = Mandate(legislator=legislator, date_start=self.legislature.date_start, party=party,
+            mandate = Mandate(legislator=legislator,
+                              date_start=self.legislature.date_start,
+                              party=party,
                               legislature=self.legislature)
             mandate.save()
-            self.debug("Mandate starting on %s did not exist, created." % self.legislature.date_start.strftime("%F"))
+            self.debug(
+                "Mandate starting on %s did not exist, created." % (
+                    self.legislature.date_start.strftime("%F")))
 
         if original_id:
             mandate.original_id = original_id
@@ -65,34 +71,50 @@ class BaseCollector(object):
         raise Exception("Not implemented.")
 
     def create_collection_run(self, legislature):
-        collection_run, created = CollectionRun.objects.get_or_create(date=date.today(),
-                                                                      legislature=legislature)
+        collection_run, created = CollectionRun.objects.get_or_create(
+            date=date.today(), legislature=legislature)
         self.collection_runs.append(collection_run)
 
-        # Keep only one run for a day. If one exists, we delete the existing collection data
+        # Keep only one run for a day.
+        # If one exists, we delete the existing collection data.
         # before we start this one.
         if not created:
-            self.debug("Collection run for %s already exists for legislature %s, clearing." % (date.today().strftime("%F"), legislature))
-            ArchivedExpense.objects.filter(collection_run=collection_run).delete()
+            self.debug(
+                """Collection run for %s already
+                exists for legislature %s, clearing.""" % (
+                    date.today().strftime("%F"), legislature))
+            ArchivedExpense.objects.filter(
+                collection_run=collection_run).delete()
 
         return collection_run
 
     def update_data(self):
         self.collection_run = self.create_collection_run(self.legislature)
-        for mandate in Mandate.objects.filter(date_start__year=self.legislature.date_start.year,
-                                              legislature=self.legislature):
-            for year in range(self.legislature.date_start.year, datetime.now().year + 1):
+        date_start__year = self.legislature.date_start.year
+        legislature = self.legislature
+        for mandate in Mandate.objects.filter(date_start__year,
+                                              legislature):
+
+            for year in range(self.legislature.date_start.year,
+                              datetime.now().year + 1):
                 self.update_data_for_year(mandate, year)
 
-    def retrieve_uri(self, uri, data=None, headers=None, post_process=True, force_encoding=None, return_content=False):
+    def retrieve_uri(self, uri, data=None, headers=None, post_process=True,
+                     force_encoding=None, return_content=False):
         retries = 0
 
-        pargs = (uri, unicode(data), unicode(headers), int(post_process), unicode(force_encoding))
-        self.debug(u"Retrieving %s data: %s headers: %s post_process? %d force_encoding: %s" % pargs)
+        pargs = (
+            uri, unicode(data), unicode(headers),
+            int(post_process), unicode(force_encoding))
+        self.debug(
+            u""""Retrieving %s data: %s headers: %s
+            post_process? %d force_encoding: %s""" % pargs)
 
         while retries < self.max_tries:
             try:
-                options = dict(data=data, headers=headers, timeout=self.default_timeout, stream=True)
+                options = dict(
+                    data=data, headers=headers,
+                    timeout=self.default_timeout, stream=True)
                 if data:
                     r = requests.post(uri, **options)
                 else:
@@ -111,11 +133,15 @@ class BaseCollector(object):
 
             except requests.ConnectionError:
                 retries += 1
-                print "Unable to retrieve %s try(%d) - will try again in %d seconds." % (uri, retries, self.try_again_timer)
+                ba = "Unable to retrieve "
+                print str(ba) + "%s try(%d) - will try again in %d seconds" % (
+                    uri, retries, self.try_again_timer)
 
             time.sleep(self.try_again_timer)
 
-        raise RuntimeError("Error: Unable to retrieve %s; Tried %d times." % (uri, self.max_tries))
+        raise RuntimeError(
+            "Error: Unable to retrieve %s; Tried %d times." % (
+                uri, self.max_tries))
 
     def _normalize_party_name(self, name):
         names_map = {
@@ -124,7 +150,8 @@ class BaseCollector(object):
         return names_map.get(name, name)
 
     def post_process_uri(self, contents):
-        return BeautifulSoup(contents, convertEntities=BeautifulStoneSoup.ALL_ENTITIES)
+        return BeautifulSoup(
+            contents, convertEntities=BeautifulStoneSoup.ALL_ENTITIES)
 
     def normalize_cnpj_or_cpf(self, cnpj):
         return cnpj.replace('.', '').replace('-', '').replace('/', '').strip()

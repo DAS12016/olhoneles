@@ -19,15 +19,15 @@
 
 import os
 import requests
-import subprocess
 from datetime import date, datetime
 from django.db import reset_queries
 from email.utils import formatdate as http_date
 from basecollector import BaseCollector
 from lxml.etree import iterparse
-from montanha.models import (ArchivedExpense, Institution, Legislature,
-                             Legislator, AlternativeLegislatorName, Mandate,
-                             ExpenseNature, Supplier, PoliticalParty, CollectionRun)
+from montanha.models import ArchivedExpense, Institution, Legislature
+from montanha.models import Legislator, AlternativeLegislatorName
+from montanha.models import ExpenseNature, Supplier, PoliticalParty
+from montanha.models import CollectionRun
 from zipfile import ZipFile
 
 
@@ -36,16 +36,18 @@ OBJECT_LIST_MAXIMUM_COUNTER = 1000
 
 class CamaraDosDeputados(BaseCollector):
     def __init__(self, collection_runs, debug_enabled=False):
-        super(CamaraDosDeputados, self).__init__(collection_runs, debug_enabled)
+        super(CamaraDosDeputados, self).__init__(
+            collection_runs, debug_enabled)
 
-        institution, _ = Institution.objects.get_or_create(siglum='CDF', name=u'Câmara dos Deputados Federais')
-        self.legislature, _ = Legislature.objects.get_or_create(institution=institution,
-                                                                date_start=datetime(2015, 1, 1),
-                                                                date_end=datetime(2018, 12, 31))
+        institution, _ = Institution.objects.get_or_create(
+            siglum='CDF', name=u'Câmara dos Deputados Federais')
+        self.legislature, _ = Legislature.objects.get_or_create(
+            institution=institution,
+            date_start=datetime(2015, 1, 1), date_end=datetime(2018, 12, 31))
 
     def retrieve_legislators(self):
-        uri = 'http://www.camara.gov.br/SitCamaraWS/Deputados.asmx/ObterDeputados'
-        return BaseCollector.retrieve_uri(self, uri)
+        i = 'http://www.camara.gov.br/SitCamaraWS/Deputados.asmx/ObterDeputados'
+        return BaseCollector.retrieve_uri(self, i)
 
     def try_name_disambiguation(self, name):
         if name.title() == 'Sergio Souza':
@@ -72,13 +74,16 @@ class CamaraDosDeputados(BaseCollector):
             if created:
                 self.debug(u"New legislator: %s" % unicode(legislator))
             else:
-                self.debug(u"Found existing legislator: %s" % unicode(legislator))
+                self.debug(
+                    u"Found existing legislator: %s" % unicode(legislator))
 
             if alternative_name:
                 try:
                     legislator.alternative_names.get(name=alternative_name)
                 except AlternativeLegislatorName.DoesNotExist:
-                    alternative_name, _ = AlternativeLegislatorName.objects.get_or_create(name=alternative_name)
+                    alternative_name,
+                    _ = AlternativeLegislatorName.objects.get_or_create(
+                            name=alternative_name)
                     legislator.alternative_name = alternative_name
 
             legislator.email = l.find('email').text
@@ -92,7 +97,10 @@ class CamaraDosDeputados(BaseCollector):
             original_id = l.find('ideCadastro')
 
             mandate = self.mandate_for_legislator(legislator, party,
-                                                  state=state, original_id=original_id)
+                                                  state=state,
+                                                  original_id=original_id)
+
+            mandate = mandate
 
     def update_data(self):
         if os.path.exists('cdep-collection-run'):
@@ -123,14 +131,16 @@ class CamaraDosDeputados(BaseCollector):
 
             headers = dict()
             if os.path.exists(full_path):
-                headers['If-Modified-Since'] = http_date(os.path.getmtime(full_path), usegmt=True)
+                headers['If-Modified-Since'] = http_date(
+                    os.path.getmtime(full_path), usegmt=True)
 
             uri = 'http://www.camara.gov.br/cotas/' + file_name
             self.debug(u"Preparing to download %s…" % (uri))
             r = requests.get(uri, headers=headers, stream=True)
 
             if r.status_code == requests.codes.not_modified:
-                self.debug(u"File %s not updated since last download, skipping…" % file_name)
+                msg = "not updated since last download,"
+                self.debug(u"File %s " + str(msg) + " skipping…" % file_name)
                 continue
 
             with open(full_path, 'wb') as f:
@@ -170,7 +180,9 @@ class CamaraDosDeputados(BaseCollector):
                         legislature_year = self.legislature.date_start.year
 
                 if legislature_year != self.legislature.date_start.year:
-                    self.debug(u"Ignoring entry because it's out of the target legislature…")
+                    message = "entry because it's out of the target"
+                    self.debug(
+                        u"Ignoring " + str(message) + " legislature…")
                     continue
 
                 name = elem.find('txNomeParlamentar').text.title().strip()
@@ -184,16 +196,20 @@ class CamaraDosDeputados(BaseCollector):
                     supplier_name = u'Sem nome'
 
                 supplier_identifier = elem.find('txtCNPJCPF')
-                if supplier_identifier is not None and supplier_identifier.text is not None:
-                    supplier_identifier = self.normalize_cnpj_or_cpf(supplier_identifier.text)
+                if supplier_identifier is not None:
+                    if supplier_identifier.text is not None:
+                        supplier_identifier = self.normalize_cnpj_or_cpf(
+                            supplier_identifier.text)
 
                 if not supplier_identifier:
                     supplier_identifier = u'Sem CNPJ/CPF (%s)' % supplier_name
 
                 try:
-                    supplier = Supplier.objects.get(identifier=supplier_identifier)
+                    supplier = Supplier.objects.get(
+                        identifier=supplier_identifier)
                 except Supplier.DoesNotExist:
-                    supplier = Supplier(identifier=supplier_identifier, name=supplier_name)
+                    supplier = Supplier(
+                        identifier=supplier_identifier, name=supplier_name)
                     supplier.save()
 
                 docnumber = elem.find('txtNumero').text
@@ -202,7 +218,10 @@ class CamaraDosDeputados(BaseCollector):
 
                 expense_date = elem.find('datEmissao')
                 if expense_date is not None:
-                    expense_date = date(*((int(x.lstrip('0')) for x in expense_date.text[:10].split('-'))))
+                    expense_date = date(
+                        *((int(x.lstrip(
+                            '0')) for x in expense_date.text[:10].split(
+                                '-'))))
                 else:
                     expense_year = int(elem.find('numAno').text)
                     expense_month = int(elem.find('numMes').text)
@@ -215,7 +234,8 @@ class CamaraDosDeputados(BaseCollector):
                 party = party_name = elem.find('sgPartido')
                 if party_name is not None:
                     party_name = self._normalize_party_name(party_name.text)
-                    party, _ = PoliticalParty.objects.get_or_create(siglum=party_name)
+                    party, _ = PoliticalParty.objects.get_or_create(
+                        siglum=party_name)
 
                 state = elem.find('sgUF').text.strip()
 
@@ -224,13 +244,15 @@ class CamaraDosDeputados(BaseCollector):
                 try:
                     legislator = Legislator.objects.get(name__iexact=name)
                 except Legislator.DoesNotExist:
-                    # Some legislators do are not listed in the other WS because they are not
-                    # in exercise.
-                    self.debug(u"Found legislator who's not in exercise: %s" % name)
+                    # Some legislators do are not listed in the other WS
+                    # because they are not in exercise.
+                    self.debug(
+                        u"Found legislator who's not in exercise: %s" % name)
                     legislator = Legislator(name=name)
                     legislator.save()
                 mandate = self.mandate_for_legislator(legislator, party,
-                                                      state=state, original_id=original_id)
+                                                      state=state,
+                                                      original_id=original_id)
                 expense = ArchivedExpense(number=docnumber,
                                           nature=nature,
                                           date=expense_date,

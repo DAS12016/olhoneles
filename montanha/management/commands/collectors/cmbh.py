@@ -18,8 +18,9 @@
 
 import base64
 from basecollector import BaseCollector
-from datetime import datetime, date
-from montanha.models import *
+from datetime import datetime
+from montanha.models import Legislator, ExpenseNature, Institution
+from montanha.models import Supplier, ArchivedExpense, Legislature
 
 
 def parse_money(string):
@@ -46,11 +47,13 @@ class CMBH(BaseCollector):
         try:
             institution = Institution.objects.get(siglum='CMBH')
         except Institution.DoesNotExist:
-            institution = Institution(siglum='CMBH', name=u'Câmara Municipal de Belo Horizonte')
+            institution = Institution(
+                siglum='CMBH', name=u'Câmara Municipal de Belo Horizonte')
             institution.save()
 
         try:
-            self.legislature = Legislature.objects.all().filter(institution=institution).order_by('-date_start')[0]
+            self.legislature = Legislature.objects.all().filter(
+                institution=institution).order_by('-date_start')[0]
         except IndexError:
             self.legislature = Legislature(institution=institution,
                                            date_start=datetime(2013, 1, 1),
@@ -137,7 +140,6 @@ class CMBH(BaseCollector):
         # Ignore the last one, which is the total.
         expense_types = expense_types.find('ul').findAll('a')[:-1]
 
-        parameters_list = []
         for etype in expense_types:
             parts = etype['onclick'].split("'")
             legislator = parts[1]
@@ -146,7 +148,8 @@ class CMBH(BaseCollector):
             seq = parts[7]
             month = parts[9]
 
-            data = self.retrieve_actual_data(code, seq, legislator, nature, month)
+            data = self.retrieve_actual_data(
+                code, seq, legislator, nature, month)
 
             if not data:
                 print 'No data...'
@@ -160,8 +163,10 @@ class CMBH(BaseCollector):
             if not data:
                 continue
 
-            legislator = base64.decodestring(legislator).strip().decode('utf-8')
-            date = parse_cmbh_date(base64.decodestring(month).strip().decode('utf-8'))
+            legislator = base64.decodestring(
+                legislator).strip().decode('utf-8')
+            date = parse_cmbh_date(
+                base64.decodestring(month).strip().decode('utf-8'))
 
             nature = base64.decodestring(nature).strip().decode('utf-8')
             nature = self._normalize_nature(nature)
@@ -171,14 +176,17 @@ class CMBH(BaseCollector):
                 nature = ExpenseNature(name=nature)
                 nature.save()
 
-            legislator, created = Legislator.objects.get_or_create(name=legislator)
+            legislator, created = Legislator.objects.get_or_create(
+                name=legislator)
 
             if created:
                 self.debug("New legislator: %s" % unicode(legislator))
             else:
-                self.debug("Found existing legislator: %s" % unicode(legislator))
+                self.debug(
+                    "Found existing legislator: %s" % unicode(legislator))
 
-            mandate = self.mandate_for_legislator(legislator, party=None, original_id=code)
+            mandate = self.mandate_for_legislator(
+                legislator, party=None, original_id=code)
 
             for row in data:
                 columns = row.findAll('td')
@@ -218,7 +226,8 @@ class CMBH(BaseCollector):
 
     def update_data(self):
         self.collection_run = self.create_collection_run(self.legislature)
-        for year in range(self.legislature.date_start.year, datetime.now().year + 1):
+        for year in range(self.legislature.date_start.year,
+                          datetime.now().year + 1):
             self.update_data_for_year(year)
 
     def update_data_for_year(self, year=datetime.now().year):
